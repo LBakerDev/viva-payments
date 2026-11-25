@@ -1,14 +1,23 @@
 import type { Payment } from '@/types'
 import { PaymentRow } from './PaymentRow'
+import { SkeletonRows } from './SkeletonRows'
 
 /**
  * Real <table> for screen readers; rows are spaced apart with border-spacing.
  * Header and body share one <colgroup> so the columns always line up.
  */
-export function PaymentsTable({ payments }: { payments: Payment[] }) {
+interface PaymentsTableProps {
+  payments: Payment[]
+  skeletonRows?: number // > 0 while the current page is still loading
+}
+
+export function PaymentsTable({ payments, skeletonRows = 0 }: PaymentsTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] border-separate border-spacing-y-2.5 text-[15px]">
+      <table
+        aria-busy={skeletonRows > 0}
+        className="w-full min-w-[720px] border-separate border-spacing-y-2.5 text-[15px]"
+      >
         <caption className="sr-only">Payments</caption>
         <colgroup>
           <col className="w-14" />
@@ -32,6 +41,7 @@ export function PaymentsTable({ payments }: { payments: Payment[] }) {
           {payments.map((payment) => (
             <PaymentRow key={payment.paymentId} payment={payment} />
           ))}
+          <SkeletonRows count={skeletonRows} />
         </tbody>
       </table>
     </div>
