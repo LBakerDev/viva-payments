@@ -9,9 +9,10 @@ import { SkeletonRows } from './SkeletonRows'
 interface PaymentsTableProps {
   payments: Payment[]
   skeletonRows?: number // > 0 while the current page is still loading
+  emptyMessage?: string // shown when loading finished with no payments
 }
 
-export function PaymentsTable({ payments, skeletonRows = 0 }: PaymentsTableProps) {
+export function PaymentsTable({ payments, skeletonRows = 0, emptyMessage }: PaymentsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table
@@ -42,6 +43,16 @@ export function PaymentsTable({ payments, skeletonRows = 0 }: PaymentsTableProps
             <PaymentRow key={payment.paymentId} payment={payment} />
           ))}
           <SkeletonRows count={skeletonRows} />
+          {emptyMessage && (
+            <tr className="[&>td]:bg-row">
+              <td colSpan={4} className="rounded-[10px] px-5 py-12 text-center">
+                <p className="font-semibold">{emptyMessage}</p>
+                <p className="text-sm text-muted-foreground">
+                  Try the other date, or refresh if you expected payments here.
+                </p>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

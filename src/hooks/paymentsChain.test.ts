@@ -59,4 +59,15 @@ describe('runChain', () => {
       error: expect.stringContaining('VPN'),
     })
   })
+
+  it('passes other errors through (e.g. missing config) instead of calling them network errors', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('Missing VITE_API_BASE or VITE_API_TOKEN.'))
+    const dispatch = vi.fn()
+    await runChain(D, 'START', new AbortController().signal, dispatch)
+
+    expect(dispatch.mock.calls.at(-1)?.[0]).toMatchObject({
+      type: 'FETCH_ERROR',
+      error: expect.stringContaining('Missing VITE_API_BASE'),
+    })
+  })
 })
