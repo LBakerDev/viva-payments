@@ -33,7 +33,7 @@ npm run dev             # http://localhost:5173
 
 | Variable | Purpose |
 |---|---|
-| `VITE_API_BASE` | Payments API base URL (prefilled in `.env.example`) |
+| `VITE_API_BASE` | `/api`, proxied to the payments API by Vite (see below) |
 | `VITE_API_TOKEN` | Bearer token from the challenge brief |
 | `VITE_USE_MOCK` | `true` = local mock data, no network. `false` = real API |
 | `VITE_MOCK_FAIL_RATE` | Mock only. Fraction of calls that fail (e.g. `0.2`) to exercise the error state |
@@ -52,6 +52,10 @@ Confirmed by calling it directly before building:
 - **The response carrying `END` is still a real payment**, so it's kept.
 - **Counts:** Jun 14 has 13 payments; Jun 28 has 68. The brief says production
   volume is unknown, so nothing assumes small counts.
+- **No CORS headers for localhost**, so the browser blocks direct calls. Requests go
+  to `/api`, and Vite's dev/preview server forwards them to the API (see
+  `vite.config.ts`). A production deployment would need its own proxy or backend,
+  which would also keep the token out of the browser.
 
 ## Architecture
 

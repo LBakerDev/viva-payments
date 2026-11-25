@@ -9,7 +9,8 @@ export function toErrorMessage(err: unknown): string {
     return 'Access denied by the payments API (403). If you’re on a VPN, try turning it off.'
   }
   if (err instanceof ApiError) return `The payments API returned an error (${err.status}).`
-  if (err instanceof TypeError) return 'Network error. Check your connection.' // fetch failed to connect
+  // fetch rejects with TypeError when it can't connect or a CORS check fails
+  if (err instanceof TypeError) return 'Couldn’t reach the payments API. If you’re on a VPN, try turning it off.'
   if (err instanceof Error) return err.message // e.g. missing .env config
   return 'Something went wrong.'
 }
