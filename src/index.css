@@ -27,7 +27,7 @@
   --input: #d1d5db;
   --ring: #3a74b5;
 
-  --row: #f8f9fb;                 /* table row background (Figma) */
+  --row: #f3f5f8;                 /* table row background (Figma #f8f9fb, darkened slightly to stay visible on bright displays) */
   --success: #2f9e57;             /* check + refresh icons */
 }
 
