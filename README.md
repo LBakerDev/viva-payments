@@ -16,6 +16,8 @@ cp .env.example .env    # then paste the API token after VITE_API_TOKEN=
 npm run dev             # http://localhost:5173
 ```
 
+Uses the real API by default. To run without a token, set `VITE_USE_MOCK=true` in `.env`.
+
 > **On a VPN?** The payments API rejected requests over a VPN with
 > `403 Forbidden` during development. Turn the VPN off, or use the mock (below).
 
