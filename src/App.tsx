@@ -59,6 +59,7 @@ export default function App() {
           )}
           <PaymentsTable
             payments={rows}
+            caption={`Payments for ${formatDate(date)}`}
             skeletonRows={view.ready ? 0 : PAGE_SIZE}
             emptyMessage={emptyMessage}
           />

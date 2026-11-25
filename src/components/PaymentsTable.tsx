@@ -8,18 +8,24 @@ import { SkeletonRows } from './SkeletonRows'
  */
 interface PaymentsTableProps {
   payments: Payment[]
+  caption?: string // read by screen readers, e.g. "Payments for Jun 28, 2024"
   skeletonRows?: number // > 0 while the current page is still loading
   emptyMessage?: string // shown when loading finished with no payments
 }
 
-export function PaymentsTable({ payments, skeletonRows = 0, emptyMessage }: PaymentsTableProps) {
+export function PaymentsTable({
+  payments,
+  caption = 'Payments',
+  skeletonRows = 0,
+  emptyMessage,
+}: PaymentsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table
         aria-busy={skeletonRows > 0}
         className="w-full min-w-[720px] border-separate border-spacing-y-2.5 text-[15px]"
       >
-        <caption className="sr-only">Payments</caption>
+        <caption className="sr-only">{caption}</caption>
         <colgroup>
           <col className="w-14" />
           <col className="w-48" />
