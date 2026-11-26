@@ -5,6 +5,16 @@ cursor-paginated payments API and shows them in a paginated table.
 
 ![Screenshot](docs/screenshot.png)
 
+## Highlights
+
+- **Each payment is its own request**, so a page appears once it's full, with skeleton
+  rows until then. Rows never trickle in, and the page count reads "N+" while loading.
+- **Switching dates cancels the running load.** Each date is cached, and an
+  unfinished one resumes where it stopped instead of restarting.
+- **Retry continues from the last good token** after an error; loaded rows stay visible.
+- **A Vite proxy** works around the API's missing CORS headers for localhost.
+- **26 unit tests**, including the date-switch race.
+
 ## Quick start
 
 Requires **Node 24 LTS or newer** (`.nvmrc` pins 26).
@@ -61,6 +71,13 @@ Confirmed by calling it directly before building:
 
 ## Architecture
 
+**Data flow:** `App` calls `usePayments(date)` → the hook runs `runChain()` →
+each response is dispatched to the reducer → `App` slices the current page with
+`getPageView()` and renders it.
+
+<details>
+<summary>Folder structure</summary>
+
 ```
 src/
   api/
@@ -81,9 +98,7 @@ src/
   App.tsx               selected date + page; wires the hook to the components
 ```
 
-**Data flow:** `App` calls `usePayments(date)` → the hook runs `runChain()` →
-each response is dispatched to the reducer → `App` slices the current page with
-`getPageView()` and renders it.
+</details>
 
 ## Decisions and trade-offs
 
@@ -129,26 +144,24 @@ timezone shouldn't change it. A test runs under `TZ=America/Los_Angeles` to prov
 **The refresh icon spins only after Refresh is clicked**, not on every load. Skeleton
 rows and the footer already show progress for date switches.
 
-## Error and empty states
+## UX details
 
-- **Error banner** (`role="alert"`) above the table, with rows already loaded kept
-  visible and a **Retry** button that resumes from the last token. A 403 suggests
-  turning off a VPN.
-- **Empty state** ("No payments for …") when a date returns nothing. The current API
-  always returns at least one payment, but production data is unknown.
-
-## Accessibility
-
-- Real `<table>` with a caption that includes the date ("Payments for Jun 28, 2024")
-- `aria-pressed` on the date toggle; `aria-busy` on the table while loading
-- A screen-reader status message that changes only when loading starts and finishes,
-  not on every payment
-- Visible focus rings; every control works with the keyboard
-- Skeleton animation stops when the OS "Reduce motion" setting is on
+- **Error banner** above the table, with loaded rows kept and a **Retry** button.
+  A 403 suggests turning off a VPN.
+- **Empty state** ("No payments for …") if a date returns nothing.
+- **Accessible:** a real `<table>` with a caption that includes the date,
+  `aria-pressed` on the date toggle, `aria-busy` while loading, and a screen-reader
+  status that changes only when loading starts and finishes.
+- **Keyboard and motion:** visible focus rings on every control; the skeleton
+  stops animating when "Reduce motion" is on.
 
 ## Tests
 
-`npm test`: 26 unit tests with Vitest.
+`npm test`: 26 unit tests with Vitest. The key one is in `paymentsChain.test.ts`:
+**nothing is dispatched after abort (the date-switch race).**
+
+<details>
+<summary>What each test file covers</summary>
 
 | File | Covers |
 |---|---|
@@ -157,6 +170,8 @@ rows and the footer already show progress for date switches.
 | `paymentsReducer.test.ts` | Append, dedupe by `paymentId`, refresh vs resume, error keeps rows, abort keeps progress, stray results ignored |
 | `paymentsChain.test.ts` | Dispatch order, `END` payment kept, **no dispatches after abort (the date-switch race)**, error messages |
 | `pagination.test.ts` | Reveal rule, page clamping, empty result |
+
+</details>
 
 To try the error state by hand: set `VITE_MOCK_FAIL_RATE=0.2`, restart, pick Jun 28,
 and use Retry.
